@@ -11,4 +11,4 @@ add_executable(helloworld main.cpp mainwindow.cpp mainwindow.h "imgwidget.cpp" "
 target_link_libraries(helloworld
         Qt5::Widgets
         Qt5::Gui
-        Qt5::QWindowsIntegrationPlugin)
+        Qt5::QWindowsIntegrationPlugin)  
