@@ -6,8 +6,6 @@
 Q_IMPORT_PLUGIN(QWindowsIntegrationPlugin);
 #endif
 
-//опа
-
 int main(int argc, char* argv[]) {
 	QApplication app(argc, argv);
 	MainWindow mainwindow;

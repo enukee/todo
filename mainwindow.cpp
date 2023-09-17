@@ -49,9 +49,6 @@ MainWindow::MainWindow()
 	QAction* actionSave = new QAction("Save");
 	connect(actionSave, SIGNAL(triggered()), this, SLOT(openFileDialog()));
 
-	connect(but1, SIGNAL(clicked()), this, SLOT(imageApproximation()));
-	connect(but2, SIGNAL(clicked()), this, SLOT(imageReduction()));
-
 	QMenu* fileMenu = menuBar()->addMenu(tr("&File"));
 	fileMenu->addAction(actionOpen);
 	fileMenu->addAction(actionSave);
