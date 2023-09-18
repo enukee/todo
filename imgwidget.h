@@ -1,6 +1,6 @@
 #pragma once 
 #include <QObject>
-#include <QHBoxLayout >
+#include <QHBoxLayout>
 #include <QScrollBar>
 #include <QWheelEvent>
 #include <QMoveEvent>
@@ -19,9 +19,9 @@ class ImgWidget : public QScrollArea {
 private:
 	Image* image;
 
-	//widget для расположения изображения
+	//widget пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	QWidget* widget;
-	//layout для центрирования зображения
+	//layout пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	QBoxLayout* layout;
 
 	QCursor cursorTarget;
