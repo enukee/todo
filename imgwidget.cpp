@@ -16,11 +16,6 @@ ImgWidget::ImgWidget(QString imgPath) {
     setMouseTracking(true);
 }
 
-//void ImgWidget::mouseMoveEvent(QMouseEvent* event) {
-//    QPoint position = event->pos();
-//    //std::cout << "позиция на изображении: " << xPos << "  " << yPos << "  " << scaleFactor << std::endl;
-//}
-
 void ImgWidget::wheelEvent(QWheelEvent* event) {
     QPoint numDegrees = event->angleDelta() / 8;
 
@@ -33,11 +28,6 @@ void ImgWidget::wheelEvent(QWheelEvent* event) {
     // получение координат с учётом newScaleFactor
     int posX = x1 / newScaleFactor_1;
     int posY = y1 / newScaleFactor_1;
-    //std::cout << posX << "  " << posY << std::endl;
-
-    // получение значения valueScrolBar
-    int valueScrolHorizontal_1 = horizontalScrollBar()->value();
-    int valueScrolVertical_1 = verticalScrollBar()->value();
 
     // масштабирование 
     // изменение scrollFactor
@@ -65,19 +55,6 @@ void ImgWidget::wheelEvent(QWheelEvent* event) {
 
     horizontalScrollBar()->setValue(valueScrolHorizontal_2);
     verticalScrollBar()->setValue(valueScrolVertical_2);
-
-    //QPoint position = event->pos();
-
-    //int maxVertical = verticalScrollBar()->maximum();
-    //int maxHorizontal = horizontalScrollBar()->maximum();
-
-    //std::cout << "                         " << maxVertical << "  " << maxHorizontal << std::endl;
-    //int valueScrolHorizontal = (y * maxHorizontal) / 2880;
-    //int valueScrolVertical = (x * maxVertical) / 5120;
-
-    //verticalScrollBar()->setValue(valueScrolVertical);
-    //horizontalScrollBar()->setValue(valueScrolHorizontal);
-
 }
 
 void ImgWidget::scaleImage(double factor) {
@@ -93,13 +70,4 @@ void ImgWidget::scaleImage(double factor) {
     int borderY = image->pixmap()->size().height() * newScaleFactor;
     layout->setContentsMargins(borderX, borderY, borderX, borderY);
     widget->setGeometry(0, 0, x + 2 * borderX, y + 2 * borderY);
-
-    /*adjustScrollBar(horizontalScrollBar(), factor);
-    adjustScrollBar(verticalScrollBar(), factor);*/
-}
-
-void ImgWidget::adjustScrollBar(QScrollBar* scrollBar, double factor)
-{
-    scrollBar->setValue(int(factor * scrollBar->value()
-        + ((factor - 1) * scrollBar->pageStep() / 2)));
 }

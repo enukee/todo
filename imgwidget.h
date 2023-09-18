@@ -31,9 +31,6 @@ public:
 	explicit ImgWidget(QString imgPath);
 
 	virtual void wheelEvent(QWheelEvent* event);
-	//void mouseMoveEvent(QMouseEvent* event);
-
-	void adjustScrollBar(QScrollBar* scrollBar, double factor);
 
 	void scaleImage(double factor);
 };
