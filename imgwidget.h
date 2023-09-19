@@ -10,27 +10,27 @@
 
 #include <iostream>
 
-#include "image.h"
-
-class ImgWidget : public QScrollArea {
+class ImgWidget : public QWidget{
 
 	Q_OBJECT
 
 private:
-	Image* image;
+    QLabel* image;
 
 	//widget ��� ������������ �����������
 	QWidget* widget;
 	//layout ��� ������������� ����������
-	QBoxLayout* layout;
+	QScrollArea* scroll;
 
 	QCursor cursorTarget;
 	double scaleFactor = 1;
 
 public:
 	explicit ImgWidget(QString imgPath);
+	void wheelEvent(QWheelEvent* event) override;
 
-	virtual void wheelEvent(QWheelEvent* event);
+public:
+    void scaleImage(double factor);
 
-	void scaleImage(double factor);
+    bool eventFilter(QObject *watched, QEvent *event) override;
 };
