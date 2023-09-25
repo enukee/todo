@@ -1,6 +1,6 @@
 #pragma once 
 #include <QObject>
-#include <QHBoxLayout >
+#include <QHBoxLayout>
 #include <QScrollBar>
 #include <QWheelEvent>
 #include <QMoveEvent>
@@ -10,30 +10,27 @@
 
 #include <iostream>
 
-#include "image.h"
-
-class ImgWidget : public QScrollArea {
+class ImgWidget : public QWidget{
 
 	Q_OBJECT
 
 private:
-	Image* image;
+    QLabel* image;
 
-	//widget для расположения изображения
+	//widget пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	QWidget* widget;
-	//layout для центрирования зображения
-	QBoxLayout* layout;
+	//layout пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+	QScrollArea* scroll;
 
 	QCursor cursorTarget;
 	double scaleFactor = 1;
 
 public:
 	explicit ImgWidget(QString imgPath);
+	void wheelEvent(QWheelEvent* event) override;
 
-	virtual void wheelEvent(QWheelEvent* event);
-	//void mouseMoveEvent(QMouseEvent* event);
+public:
+    void scaleImage(double factor);
 
-	void adjustScrollBar(QScrollBar* scrollBar, double factor);
-
-	void scaleImage(double factor);
+    bool eventFilter(QObject *watched, QEvent *event) override;
 };
