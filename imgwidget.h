@@ -7,6 +7,7 @@
 #include <QScrollArea>
 #include <QLabel>
 #include <QMouseEvent>
+#include <QPainter>
 
 #include <iostream>
 
@@ -16,6 +17,9 @@ class ImgWidget : public QWidget{
 
 private:
     QLabel* image;
+	QPainter* painter;
+
+	QWidget* paintWidget;
 
 	//widget ��� ������������ �����������
 	QWidget* widget;
@@ -27,10 +31,19 @@ private:
 
 public:
 	explicit ImgWidget(QString imgPath);
+
 	void wheelEvent(QWheelEvent* event) override;
 
-public:
-    void scaleImage(double factor);
+private:
+	void drawArea(QWheelEvent* event);
 
-    bool eventFilter(QObject *watched, QEvent *event) override;
+    void scaleImage(double factor);
+	
+	bool eventFilter(QObject *watched, QEvent *event) override;
+
+protected:
+	void mousePressEvent(QMouseEvent* e) override;
+
+	void paintEvent(QPaintEvent* e) override;
+
 };

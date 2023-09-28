@@ -14,10 +14,26 @@ ImgWidget::ImgWidget(QString imgPath) {
     image->setPixmap(QPixmap(imgPath));
     image->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     image->setScaledContents(true);
+
+    paintWidget = new QWidget(image);
+    painter = new QPainter(paintWidget);
+
     scroll->setWidget(image);
 
     cursorTarget = QCursor(Qt::CrossCursor);
     image->setCursor(cursorTarget);
+}
+
+void ImgWidget::paintEvent(QPaintEvent* e) {
+    painter->setPen(QPen{ Qt::black, 33, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin });
+
+    painter->drawLine(0, 0, 1000, 1000);
+}
+
+void ImgWidget::mousePressEvent(QMouseEvent* event) {
+    if (event->button() == Qt::LeftButton) {
+        paintWidget->update();
+    }
 }
 
 void ImgWidget::wheelEvent(QWheelEvent* event) {
