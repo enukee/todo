@@ -11,15 +11,14 @@
 
 #include <iostream>
 
+#include "ImageView.h"
+
 class ImgWidget : public QWidget{
 
 	Q_OBJECT
 
 private:
-    QLabel* image;
-	QPainter* painter;
-
-	QWidget* paintWidget;
+	ImageView* image;
 
 	//widget ��� ������������ �����������
 	QWidget* widget;
@@ -27,23 +26,15 @@ private:
 	QScrollArea* scroll;
 
 	QCursor cursorTarget;
-	double scaleFactor = 1;
 
 public:
 	explicit ImgWidget(QString imgPath);
 
+protected:
 	void wheelEvent(QWheelEvent* event) override;
 
 private:
 	void drawArea(QWheelEvent* event);
-
-    void scaleImage(double factor);
 	
 	bool eventFilter(QObject *watched, QEvent *event) override;
-
-protected:
-	void mousePressEvent(QMouseEvent* e) override;
-
-	void paintEvent(QPaintEvent* e) override;
-
 };

@@ -10,60 +10,41 @@ ImgWidget::ImgWidget(QString imgPath) {
     this->setLayout(new QBoxLayout(QBoxLayout::LeftToRight));
     this->layout()->addWidget(scroll);
 
-    image = new QLabel();
-    image->setPixmap(QPixmap(imgPath));
-    image->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-    image->setScaledContents(true);
-
-    paintWidget = new QWidget(image);
-    painter = new QPainter(paintWidget);
-
+    image = new ImageView(QPixmap(imgPath));
     scroll->setWidget(image);
 
     cursorTarget = QCursor(Qt::CrossCursor);
     image->setCursor(cursorTarget);
 }
 
-void ImgWidget::paintEvent(QPaintEvent* e) {
-    painter->setPen(QPen{ Qt::black, 33, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin });
-
-    painter->drawLine(0, 0, 1000, 1000);
-}
-
-void ImgWidget::mousePressEvent(QMouseEvent* event) {
-    if (event->button() == Qt::LeftButton) {
-        paintWidget->update();
-    }
-}
-
 void ImgWidget::wheelEvent(QWheelEvent* event) {
     // функция для перехода от системы координат(СК) ImgWidget в пиксельную СК изображения
     auto widgetToImageCS = [this] (const QPoint& p) {
         const QPoint labelPos = image->mapFrom(this, p);
-        return labelPos / scaleFactor;
+        return labelPos / image->getScale();
     };
 
     const QPoint imageFocusOld = widgetToImageCS(event->pos());
     const int dy = event->angleDelta().y();
 
     if (dy > 0) {
-        scaleImage(2);
+        image->scaleImage(0.5);
     } else if (dy < 0) {
-        scaleImage(0.5);
+        image->scaleImage(2);
     }
     const QPoint imageFocusNew = widgetToImageCS(event->pos());
-    const QPoint offset = (imageFocusOld - imageFocusNew) * scaleFactor;
+    const QPoint offset = (imageFocusOld - imageFocusNew) * image->getScale();
+
+    std::cout << imageFocusOld.x() << "  " << imageFocusOld.y() << std::endl;
+    std::cout << imageFocusNew.x() << "  " << imageFocusNew.y() << std::endl << std::endl;
+
 
     auto updateScroll = [] (QScrollBar* s, int offset) {
         s->setValue(s->value() + offset);
     };
-    updateScroll(scroll->horizontalScrollBar(), offset.x());
-    updateScroll(scroll->verticalScrollBar(), offset.y());
-}
 
-void ImgWidget::scaleImage(double factor) {
-    scaleFactor *= factor;
-    image->resize(scaleFactor * image->pixmap()->size());
+    //updateScroll(scroll->horizontalScrollBar(), offset.x());
+    //updateScroll(scroll->verticalScrollBar(), offset.y());
 }
 
 bool ImgWidget::eventFilter(QObject *watched, QEvent *event) {
