@@ -8,6 +8,7 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QFileDialog>
+#include <QInputDialog>
 
 #include "imgwidget.h"
 

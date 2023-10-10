@@ -29,6 +29,7 @@ MainWindow::MainWindow()
 	toolbar->addWidget(but1);
 	toolbar->addWidget(but2);
 
+
 	tabWidget = new QTabWidget();
 	lauout->addWidget(tabWidget);
 

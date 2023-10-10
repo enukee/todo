@@ -20,9 +20,8 @@ class ImgWidget : public QWidget{
 private:
 	ImageView* image;
 
-	//widget ��� ������������ �����������
 	QWidget* widget;
-	//layout ��� ������������� ����������
+
 	QScrollArea* scroll;
 
 	QCursor cursorTarget;
