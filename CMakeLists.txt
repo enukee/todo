@@ -6,9 +6,10 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-add_executable(helloworld main.cpp mainwindow.cpp mainwindow.h imgwidget.cpp imgwidget.h ImageView.cpp ImageView.h)
+add_executable(helloworld main.cpp mainwindow.cpp mainwindow.h imgwidget.cpp imgwidget.h ImageView.cpp ImageView.h "InputField.h" "InputField.cpp")
 
 target_link_libraries(helloworld
         Qt5::Widgets
         Qt5::Gui
-        Qt5::QWindowsIntegrationPlugin)  
+        Qt5::QWindowsIntegrationPlugin
+)  

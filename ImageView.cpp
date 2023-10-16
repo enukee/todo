@@ -4,12 +4,10 @@
 ImageView::ImageView(QPixmap image)
     :image{ image } {
     setGeometry(0, 0, image.width(), image.height());
-
     this->setMouseTracking(true);
 }
 
 void ImageView::paintEvent(QPaintEvent* event) {
-
     QPainter painter(this);
     auto vp = painter.viewport();
     const auto topLeftImagePoint = viewToImage(vp.topLeft());
@@ -17,14 +15,11 @@ void ImageView::paintEvent(QPaintEvent* event) {
     painter.drawPixmap(vp, image, QRectF(topLeftImagePoint, bottomRightImagePoint));
 
     auto ImageToPainter = [this](QPoint& p) {
-        return p / scale;
-    };
+        return p * scale;
+        };
 
-    qreal lineThickness = 4 * scale;
-    if (lineThickness > 6)
-        lineThickness = 6;
-    else if (lineThickness < 2)
-        lineThickness = 2;
+    qreal lineThickness = 4 / scale;
+    lineThickness = std::max(std::min(lineThickness, (qreal)6), (qreal)2);
 
     painter.setPen(QPen(Qt::red, lineThickness, Qt::DotLine));
 
@@ -37,7 +32,7 @@ void ImageView::paintEvent(QPaintEvent* event) {
 
 void ImageView::mousePressEvent(QMouseEvent* event) {
     QPoint position = event->pos();
-    position *= scale;
+    position /= scale;
 
     if (event->button() == Qt::LeftButton) {
         rect.setTopLeft(QPoint(position.x(), position.y()));
@@ -46,37 +41,35 @@ void ImageView::mousePressEvent(QMouseEvent* event) {
 
 void ImageView::mouseReleaseEvent(QMouseEvent* event) {
     QPoint position = event->pos();
-    position *= scale;
+    position /= scale;
 
     if (event->button() == Qt::LeftButton) {
         // normalization of coordinates
-        auto swapByValue = [](qreal& a, qreal& b) {
-            if (a < b) {
-                int c = a;
-                a = b;
-                b = c;
-            }
-        };
-
         qreal x1 = position.x();
         qreal y1 = position.y();
         qreal x2 = rect.topLeft().x();
         qreal y2 = rect.topLeft().y();
 
-        swapByValue(x1, x2);
-        swapByValue(y1, y2);
+        std::pair<qreal, qreal> x = std::minmax(x1, x2);
+        std::pair<qreal, qreal> y = std::minmax(y1, y2);
 
-        rect.setBottomRight(QPoint(x1, y1));
-        rect.setTopLeft(QPoint(x2, y2));
+        rect.setBottomRight(QPoint(x.second, y.second));
+        rect.setTopLeft(QPoint(x.first, y.first));
 
+        setRectX(x.first);
+        setRectY(y.first);
+        setRectW(x.second - x.first);
+        setRectH(y.second - y.first);
+
+        // sending a signal about a change in the selection
+        emit PointRectChanged(rect.x(), rect.y(), rect.width(), rect.height());
         update();
     }
-    std::cout << rect.topLeft().x() << "    " << rect.topLeft().y() << std::endl;
-    std::cout << rect.bottomRight().x() << "    " << rect.bottomRight().y() << std::endl << std::endl;
 }
 
+
 QPointF ImageView::viewToImage(const QPointF& view) const {
-    return view * scale;
+    return view / scale;
 }
 
 QSize ImageView::getImageSize() {
@@ -87,14 +80,35 @@ double ImageView::getScale() {
     return scale;
 }
 
-void ImageView::setOffset(QPointF offset) {
-    this->offset = offset;
+void ImageView::setRectX(int x) {
+    x = std::max(x, 0);
+    rect.setX(x);
+    update();
+}
+void ImageView::setRectY(int y) {
+    y = std::max(y, 0);
+    rect.setY(y);
+    update();
+}
+void ImageView::setRectW(int width) {
+    width = std::min(image.width() - rect.x(), width);
+    rect.setWidth(width);
+    update();
+}
+void ImageView::setRectH(int height) {
+    height = std::min(image.height() - rect.y(), height);
+    rect.setHeight(height);
+    update();
+}
+
+QRect ImageView::getRect() {
+    return rect;
 }
 
 void ImageView::scaleImage(double factor) {
     scale *= factor;
     // image.width() - the real width of the image
     // image.width() / scale - width on widget
-    setGeometry(0, 0, image.width() / scale, image.height() / scale);
+    setGeometry(0, 0, image.width() * scale, image.height() * scale);
     update();
 }

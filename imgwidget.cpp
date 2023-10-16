@@ -20,20 +20,20 @@ void ImgWidget::wheelEvent(QWheelEvent* event) {
     // функция для перехода от системы координат(СК) ImgWidget в пиксельную СК изображения
     auto widgetToImageCS = [this] (const QPoint& p) {
         const QPoint labelPos = image->mapFrom(this, p);
-        return labelPos * image->getScale();
+        return labelPos / image->getScale();
     };
 
     const QPoint imageFocusOld = widgetToImageCS(event->pos());
     const int dy = event->angleDelta().y();
 
-    if ((dy > 0) && (image->getScale() > 0.125)) {
-        image->scaleImage(0.5);
-    } else if ((dy < 0) && (image->getScale() < 8)) {
+    if ((dy > 0) && (image->getScale() < 8)) {
         image->scaleImage(2);
+    } else if ((dy < 0) && (image->getScale() > 0.125)) {
+        image->scaleImage(0.5);
     }
 
     const QPoint imageFocusNew = widgetToImageCS(event->pos());
-    const QPoint offset = (imageFocusOld - imageFocusNew) / image->getScale();
+    const QPoint offset = (imageFocusOld - imageFocusNew) * image->getScale();
 
     auto updateScroll = [] (QScrollBar* s, int offset) {
         s->setValue(s->value() + offset);

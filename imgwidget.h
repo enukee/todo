@@ -17,9 +17,10 @@ class ImgWidget : public QWidget{
 
 	Q_OBJECT
 
-private:
+public:
 	ImageView* image;
 
+private:
 	QWidget* widget;
 
 	QScrollArea* scroll;
