@@ -5,6 +5,7 @@
 #include <QMouseEvent>
 
 #include <stdio.h>
+#include <algorithm>
 
 class ImageView : public QWidget {
     Q_OBJECT

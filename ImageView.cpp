@@ -19,7 +19,7 @@ void ImageView::paintEvent(QPaintEvent* event) {
         };
 
     qreal lineThickness = 4 / scale;
-    lineThickness = std::max(std::min(lineThickness, (qreal)6), (qreal)2);
+    lineThickness = std::clamp(lineThickness, (qreal)2, (qreal)6);
 
     painter.setPen(QPen(Qt::red, lineThickness, Qt::DotLine));
 
@@ -28,6 +28,9 @@ void ImageView::paintEvent(QPaintEvent* event) {
     rectangle.setBottomRight(ImageToPainter(rect.bottomRight()));
     painter.drawRect(rectangle);
     QWidget::paintEvent(event);
+
+    // sending a signal about a change in the selection
+    emit PointRectChanged(rect.x(), rect.y(), rect.width(), rect.height());
 }
 
 void ImageView::mousePressEvent(QMouseEvent* event) {
@@ -56,13 +59,13 @@ void ImageView::mouseReleaseEvent(QMouseEvent* event) {
         rect.setBottomRight(QPoint(x.second, y.second));
         rect.setTopLeft(QPoint(x.first, y.first));
 
-        setRectX(x.first);
-        setRectY(y.first);
         setRectW(x.second - x.first);
         setRectH(y.second - y.first);
+        setRectX(x.first);
+        setRectY(y.first);
 
         // sending a signal about a change in the selection
-        emit PointRectChanged(rect.x(), rect.y(), rect.width(), rect.height());
+        //emit PointRectChanged(rect.x(), rect.y(), rect.width(), rect.height());
         update();
     }
 }

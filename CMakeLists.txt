@@ -8,6 +8,8 @@ set(CMAKE_AUTOUIC ON)
 
 add_executable(helloworld main.cpp mainwindow.cpp mainwindow.h imgwidget.cpp imgwidget.h ImageView.cpp ImageView.h "InputField.h" "InputField.cpp")
 
+set_property(TARGET helloworld PROPERTY CXX_STANDARD 17)
+
 target_link_libraries(helloworld
         Qt5::Widgets
         Qt5::Gui
