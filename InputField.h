@@ -18,11 +18,10 @@ public:
 public:
 	InputField(QString str);
 
-	void setField(QString str);
-
 signals:
 	void changingField(int);
 
 public slots:
 	void validator(const QString& str);
+	void setField(int value);
 };

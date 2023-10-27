@@ -26,11 +26,24 @@ void ImageView::paintEvent(QPaintEvent* event) {
     QRect rectangle;
     rectangle.setTopLeft(ImageToPainter(rect.topLeft()));
     rectangle.setBottomRight(ImageToPainter(rect.bottomRight()));
+    
     painter.drawRect(rectangle);
     QWidget::paintEvent(event);
 
     // sending a signal about a change in the selection
-    emit PointRectChanged(rect.x(), rect.y(), rect.width(), rect.height());
+    //emit PointRectChanged(rect.x(), rect.y(), rect.width(), rect.height());
+}
+
+std::pair<qreal, qreal> ImageView::searchMinMax(qreal x1, qreal x2, qreal max) {
+    std::pair<qreal, qreal> result = std::minmax(x1, x2);
+
+    auto coordinateRestriction = [](qreal& value, qreal max) {
+        value = std::clamp(value, (qreal)0, max);
+        };
+
+    coordinateRestriction(result.second, max);
+    coordinateRestriction(result.first, max);
+    return result;
 }
 
 void ImageView::mousePressEvent(QMouseEvent* event) {
@@ -39,6 +52,31 @@ void ImageView::mousePressEvent(QMouseEvent* event) {
 
     if (event->button() == Qt::LeftButton) {
         rect.setTopLeft(QPoint(position.x(), position.y()));
+    }
+}
+
+void ImageView::mouseMoveEvent(QMouseEvent* event) {
+    QPoint position = event->pos();
+    position /= scale;
+
+    if (event->buttons().testFlag(Qt::LeftButton)) {
+        // normalization of coordinates
+        qreal x1 = position.x();
+        qreal y1 = position.y();
+        qreal x2 = rect.topLeft().x();
+        qreal y2 = rect.topLeft().y();
+
+        std::pair<qreal, qreal> x = searchMinMax(x1, x2, image.width());
+        std::pair<qreal, qreal> y = searchMinMax(y1, y2, image.height());
+
+        rect.setBottomRight(QPoint(x1, y1));
+
+        update();
+        QRect rectangle;
+        rectangle.setBottomRight(QPoint(x.second, y.second));
+        rectangle.setTopLeft(QPoint(x.first, y.first));
+
+        emit PointRectChanged(rectangle);
     }
 }
 
@@ -53,20 +91,14 @@ void ImageView::mouseReleaseEvent(QMouseEvent* event) {
         qreal x2 = rect.topLeft().x();
         qreal y2 = rect.topLeft().y();
 
-        std::pair<qreal, qreal> x = std::minmax(x1, x2);
-        std::pair<qreal, qreal> y = std::minmax(y1, y2);
+        std::pair<qreal, qreal> x = searchMinMax(x1, x2, image.width() - 1);
+        std::pair<qreal, qreal> y = searchMinMax(y1, y2, image.height() - 1);
 
         rect.setBottomRight(QPoint(x.second, y.second));
         rect.setTopLeft(QPoint(x.first, y.first));
 
-        setRectW(x.second - x.first);
-        setRectH(y.second - y.first);
-        setRectX(x.first);
-        setRectY(y.first);
-
-        // sending a signal about a change in the selection
-        //emit PointRectChanged(rect.x(), rect.y(), rect.width(), rect.height());
         update();
+        emit PointRectChanged(rect);
     }
 }
 
@@ -84,24 +116,59 @@ double ImageView::getScale() {
 }
 
 void ImageView::setRectX(int x) {
-    x = std::max(x, 0);
-    rect.setX(x);
-    update();
-}
-void ImageView::setRectY(int y) {
-    y = std::max(y, 0);
-    rect.setY(y);
-    update();
-}
-void ImageView::setRectW(int width) {
-    width = std::min(image.width() - rect.x(), width);
+    int width = rect.width();
+    int max = image.width() - width;
+    if ((x < 0) || (x > max)) {
+        rect.setX(max);
+        emit IncorrectSelectionSize(0, max);
+    }
+    else
+        rect.setX(x);
+    
     rect.setWidth(width);
     update();
+    emit PointRectChangedX(rect.x());
 }
-void ImageView::setRectH(int height) {
-    height = std::min(image.height() - rect.y(), height);
+
+void ImageView::setRectY(int y) {
+    int height = rect.height();
+    int max = image.height() - height;
+    if ((y < 0) || (y > max)) {
+        rect.setY(max);
+        emit IncorrectSelectionSize(0, max);
+    }
+    else
+        rect.setY(y);
+
     rect.setHeight(height);
     update();
+    emit PointRectChangedY(rect.y());
+}
+
+void ImageView::setRectW(int width) {
+    int max = image.width() - rect.x();
+    if ((width < 0) || (width > max)) {
+        rect.setWidth(max);
+        emit IncorrectSelectionSize(0, max);
+    }
+    else
+        rect.setWidth(width);
+    
+    update();
+    emit PointRectChangedW(rect.width());
+}
+
+void ImageView::setRectH(int height) {
+    int max = image.height() - rect.y();
+    if ((height < 0) || (height > max)) {
+        rect.setHeight(max);
+        emit IncorrectSelectionSize(0, max);
+    }
+    else
+        rect.setHeight(rect.height());
+    
+    update();
+    emit PointRectChangedH(height);
 }
 
 QRect ImageView::getRect() {

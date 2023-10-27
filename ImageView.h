@@ -15,12 +15,14 @@ public:
 
 protected:
     void paintEvent(QPaintEvent* event) override;
-
     void mousePressEvent(QMouseEvent* event) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
     void mouseReleaseEvent(QMouseEvent* event) override;
 
 private:
     QPointF viewToImage(const QPointF& view) const;
+
+    std::pair<qreal, qreal> searchMinMax(qreal value1, qreal value2, qreal max);
 
 private:
     QPixmap image;
@@ -36,8 +38,23 @@ public:
 
     void scaleImage(double factor);
 
+private:
+
+
 signals:
-    void PointRectChanged(int x, int y, int width, int height);
+    // изменение коррдинаты x
+    void PointRectChangedX(int x);
+    // изменение коррдинаты y
+    void PointRectChangedY(int y);
+    // изменение коррдинаты ширины выделения
+    void PointRectChangedW(int w);
+    // изменение коррдинаты высоты выделения
+    void PointRectChangedH(int h);
+
+    void PointRectChanged(QRect);
+
+    // сигнал о некоректном значении
+    void IncorrectSelectionSize(int min, int max);
 
 public slots:
     void setRectX(int x);
