@@ -13,6 +13,7 @@
 
 #include "imgwidget.h"
 #include "InputField.h"
+#include "processingWidget.h"
 
 class MainWindow : public QMainWindow
 {
@@ -27,8 +28,17 @@ public:
 	InputField* inputFieldW;
 	InputField* inputFieldH;
 
+	ProcessingWidget* window;
+
 public:
 	MainWindow();
+
+private:
+	void connectingGraphicWidget(ImgWidget* currentWidget);
+	void disablingGraphicalWidget(ImgWidget* currentWidget);
+
+protected:
+	void closeEvent(QCloseEvent* event);
 
 public slots:
 	void changingFields(QRect rect);
@@ -36,6 +46,8 @@ public slots:
 	void sizeErrorWindowOutput(int min, int max);
 
 	void openFileDialog();
+
+	void openWindowCombining();
 
 	void selectTab(int x);
 };

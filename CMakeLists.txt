@@ -6,7 +6,8 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-add_executable(helloworld main.cpp mainwindow.cpp mainwindow.h imgwidget.cpp imgwidget.h ImageView.cpp ImageView.h "InputField.h" "InputField.cpp")
+add_executable(helloworld "main.cpp" "mainwindow.cpp" "mainwindow.h" "imgwidget.cpp" "imgwidget.h" "ImageView.cpp" "ImageView.h" 
+"InputField.h" "InputField.cpp" "processingWidget.cpp" "processingWidget.h" "сoordinateInputPanel.cpp" "сoordinateInputPanel.h")
 
 set_property(TARGET helloworld PROPERTY CXX_STANDARD 17)
 
