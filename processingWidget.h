@@ -4,13 +4,13 @@
 #include <QVBoxLayout>
 #include <QComboBox>
 #include <QPushButton>
+#include <QLabel>
 
 // a widget that will receive information about the location of files and process them
 class ProcessingWidget : public QWidget {
 	Q_OBJECT
 
 private:
-	QVBoxLayout* layout;
 	QComboBox* list1;
 	QComboBox* list2;
 	QPushButton* processingButton;

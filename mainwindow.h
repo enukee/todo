@@ -12,8 +12,8 @@
 #include <QSizePolicy>
 
 #include "imgwidget.h"
-#include "InputField.h"
 #include "processingWidget.h"
+#include "ñoordinateInputPanel.h"
 
 class MainWindow : public QMainWindow
 {
@@ -23,12 +23,9 @@ public:
 	QTabWidget* tabWidget;
 	ImgWidget* currentWidget;
 
-	InputField* inputFieldX;
-	InputField* inputFieldY;
-	InputField* inputFieldW;
-	InputField* inputFieldH;
+	CoordinateInputPanel* panelInput;
 
-	ProcessingWidget* window;
+	ProcessingWidget* processingWindow;
 
 public:
 	MainWindow();
@@ -47,7 +44,7 @@ public slots:
 
 	void openFileDialog();
 
-	void openWindowCombining();
-
 	void selectTab(int x);
+
+	void slotCloseTab(int index);
 };

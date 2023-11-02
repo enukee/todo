@@ -2,17 +2,14 @@
 
 void MainWindow::openFileDialog() {
 	QString fileName = QFileDialog::getOpenFileName(this,
-		tr("Выбор изображения"), "C:/", tr("Image Files (*.bmp)"));
+		tr("Image Selection"), "C:/", tr("Image Files (*.bmp)"));
+	if (fileName == nullptr) return;
+
 	ImgWidget* img = new ImgWidget(fileName);
 	tabWidget->addTab(img, fileName);
+	tabWidget->setCurrentWidget(img);
 
-	window->addFile(fileName);
-}
-
-void MainWindow::openWindowCombining() {
-	setEnabled(false);
-	window->show();
-	setEnabled(true);
+	processingWindow->addFile(fileName);
 }
 
 void MainWindow::connectingGraphicWidget(ImgWidget* widget) {
@@ -22,34 +19,34 @@ void MainWindow::connectingGraphicWidget(ImgWidget* widget) {
 
 	// изменение значения поля x при некорректно введёном значении
 	connect(widget->image, SIGNAL(PointRectChangedX(int)),
-		inputFieldX, SLOT(setField(int)));
+		panelInput->inputFieldX, SLOT(setField(int)));
 
 	// изменение значения поля y при некорректно введёном значении
 	connect(widget->image, SIGNAL(PointRectChangedY(int)),
-		inputFieldY, SLOT(setField(int)));
+		panelInput->inputFieldY, SLOT(setField(int)));
 
 	// изменение значения поля ширина при некорректно введёном значении
 	connect(widget->image, SIGNAL(PointRectChangedW(int)),
-		inputFieldW, SLOT(setField(int)));
+		panelInput->inputFieldW, SLOT(setField(int)));
 
 	// изменение значения поля высота при некорректно введёном значении
 	connect(widget->image, SIGNAL(PointRectChangedH(int)),
-		inputFieldH, SLOT(setField(int)));
+		panelInput->inputFieldH, SLOT(setField(int)));
 
 	// изменениии выделения при изменении значения поля
-	connect(inputFieldX, SIGNAL(changingField(int)),
+	connect(panelInput->inputFieldX, SIGNAL(changingField(int)),
 		widget->image, SLOT(setRectX(int)));
 
 	// изменениии выделения при изменении значения поля
-	connect(inputFieldY, SIGNAL(changingField(int)),
+	connect(panelInput->inputFieldY, SIGNAL(changingField(int)),
 		widget->image, SLOT(setRectY(int)));
 
 	// изменениии выделения при изменении значения поля
-	connect(inputFieldW, SIGNAL(changingField(int)),
+	connect(panelInput->inputFieldW, SIGNAL(changingField(int)),
 		widget->image, SLOT(setRectW(int)));
 
 	// изменениии выделения при изменении значения поля
-	connect(inputFieldH, SIGNAL(changingField(int)),
+	connect(panelInput->inputFieldH, SIGNAL(changingField(int)),
 		widget->image, SLOT(setRectH(int)));
 
 	// отркрытие окна с информацией об ошибке
@@ -64,34 +61,34 @@ void MainWindow::disablingGraphicalWidget(ImgWidget* widget) {
 
 	// изменение значения поля x при некорректно введёном значении
 	disconnect(widget->image, SIGNAL(PointRectChangedX(int)),
-		inputFieldX, SLOT(setField(int)));
+		panelInput->inputFieldX, SLOT(setField(int)));
 
 	// изменение значения поля y при некорректно введёном значении
 	disconnect(widget->image, SIGNAL(PointRectChangedY(int)),
-		inputFieldY, SLOT(setField(int)));
+		panelInput->inputFieldY, SLOT(setField(int)));
 
 	// изменение значения поля ширина при некорректно введёном значении
 	disconnect(widget->image, SIGNAL(PointRectChangedW(int)),
-		inputFieldW, SLOT(setField(int)));
+		panelInput->inputFieldW, SLOT(setField(int)));
 
 	// изменение значения поля высота при некорректно введёном значении
 	disconnect(widget->image, SIGNAL(PointRectChangedH(int)),
-		inputFieldH, SLOT(setField(int)));
+		panelInput->inputFieldH, SLOT(setField(int)));
 
 	// изменениии выделения при изменении значения поля
-	disconnect(inputFieldX, SIGNAL(changingField(int)),
+	disconnect(panelInput->inputFieldX, SIGNAL(changingField(int)),
 		widget->image, SLOT(setRectX(int)));
 
 	// изменениии выделения при изменении значения поля
-	disconnect(inputFieldY, SIGNAL(changingField(int)),
+	disconnect(panelInput->inputFieldY, SIGNAL(changingField(int)),
 		widget->image, SLOT(setRectY(int)));
 
 	// изменениии выделения при изменении значения поля
-	disconnect(inputFieldW, SIGNAL(changingField(int)),
+	disconnect(panelInput->inputFieldW, SIGNAL(changingField(int)),
 		widget->image, SLOT(setRectW(int)));
 
 	// изменениии выделения при изменении значения поля
-	disconnect(inputFieldH, SIGNAL(changingField(int)),
+	disconnect(panelInput->inputFieldH, SIGNAL(changingField(int)),
 		widget->image, SLOT(setRectH(int)));
 
 	// отркрытие окна с информацией об ошибке
@@ -100,9 +97,14 @@ void MainWindow::disablingGraphicalWidget(ImgWidget* widget) {
 }
 
 void MainWindow::selectTab(int id) {
-	if (currentWidget != NULL) {
+	if (id == -1) return;
+
+	if (currentWidget != NULL)
 		disablingGraphicalWidget(currentWidget);
-	}
+	else
+		panelInput->isEnabled(true);
+
+
 	QWidget* w = tabWidget->widget(id);
 	currentWidget = dynamic_cast<ImgWidget*>(w);
 
@@ -113,10 +115,10 @@ void MainWindow::selectTab(int id) {
 }
 
 void MainWindow::changingFields(QRect rect) {
-	inputFieldX->setField(rect.x());
-	inputFieldY->setField(rect.y());
-	inputFieldW->setField(rect.width());
-	inputFieldH->setField(rect.height());
+	panelInput->inputFieldX->setField(rect.x());
+	panelInput->inputFieldY->setField(rect.y());
+	panelInput->inputFieldW->setField(rect.width());
+	panelInput->inputFieldH->setField(rect.height());
 }
 
 void MainWindow::sizeErrorWindowOutput(int min, int max) {
@@ -135,38 +137,29 @@ MainWindow::MainWindow() {
 	QWidget* centralWidget = new QWidget();
 	QHBoxLayout* lauout = new QHBoxLayout();
 
-	window = new ProcessingWidget();
+	processingWindow = new ProcessingWidget();
 
 	tabWidget = new QTabWidget();
+	tabWidget->setMovable(true);
+	tabWidget->setTabsClosable(true);
+	//tabWidget->setUsersScrollButtons(true);
 	lauout->addWidget(tabWidget);
 	currentWidget = NULL;
 
-	QWidget* w1 = new QWidget();
-	w1->setMaximumSize(300, 1000);
-	QHBoxLayout* l1 = new QHBoxLayout();
-	w1->setLayout(l1);
-	l1->setAlignment(Qt::AlignTop);
-	lauout->addWidget(w1);
+	QWidget* toolWidget = new QWidget();
+	toolWidget->setMaximumSize(300, 1000);
+	QHBoxLayout* toolLayout = new QHBoxLayout();
+	toolLayout->setAlignment(Qt::AlignTop);
+	lauout->addWidget(toolWidget);
 
-	QWidget* gridWidget = new QWidget();
-	QGridLayout* layoutField = new QGridLayout();
-	// поле ввода координаты
-	inputFieldX = new InputField("coordinate X : ");
-	layoutField->addWidget(inputFieldX, 0, 0);
-	inputFieldY = new InputField("coordinate Y : ");
-	layoutField->addWidget(inputFieldY, 0, 1);
-	inputFieldW = new InputField("width : ");
-	layoutField->addWidget(inputFieldW, 1, 0);
-	inputFieldH = new InputField("height : ");
-	layoutField->addWidget(inputFieldH, 1, 1);
-	gridWidget->setLayout(layoutField);
-	l1->addWidget(gridWidget);
-	gridWidget->setMaximumSize(300, inputFieldX->sizeHint().height() * 2);
+	panelInput = new CoordinateInputPanel();
+	toolLayout->addWidget(panelInput);
+	toolWidget->setLayout(toolLayout);
 
 	// добавления виджета для отладки
-	ImgWidget* img = new ImgWidget("C:/Users/vi/Pictures/Saved Pictures/5120x2880-UHD.bmp");
+	/*ImgWidget* img = new ImgWidget("C:/Users/vi/Pictures/Saved Pictures/5120x2880-UHD.bmp");
 	tabWidget->addTab(img, "fileName");
-	window->addFile("fileName");
+	processingWindow->addFile("fileName");*/
 
 	// Открытие файла .bmp
 	QAction* actionOpen = new QAction("Open");
@@ -178,13 +171,16 @@ MainWindow::MainWindow() {
 
 	// Сохранение файла .bmp
 	QAction* combining = new QAction("Combining");
-	connect(combining, SIGNAL(triggered()), this, SLOT(openWindowCombining()));
+	connect(combining, SIGNAL(triggered()), this->processingWindow, SLOT(show()));
 
 	// изменение значений выделения при переключениии вкладки
 	connect(tabWidget, SIGNAL(currentChanged(int)), this, SLOT(selectTab(int)));
 
+	//
+	connect(tabWidget, SIGNAL(tabCloseRequested(int)), this, SLOT(slotCloseTab(int)));
+
 	// подключение текущего виджета
-	selectTab(0);
+	//selectTab(0);
 
 	QMenu* fileMenu = menuBar()->addMenu(tr("&File"));
 	fileMenu->addAction(actionOpen);
@@ -212,4 +208,17 @@ void MainWindow::closeEvent(QCloseEvent* event)
 	}*/
 
 	event->accept();
+}
+
+void MainWindow::slotCloseTab(int index) {
+	QWidget* widget = tabWidget->widget(index);
+	ImgWidget* widgetToDeleted = dynamic_cast<ImgWidget*>(widget);
+	disablingGraphicalWidget(widgetToDeleted);
+	tabWidget->removeTab(index);
+	delete widgetToDeleted;
+
+	if (tabWidget->currentIndex() == -1){
+		currentWidget = NULL;
+		panelInput->isEnabled(false);
+	}
 }
