@@ -73,7 +73,7 @@ void ImageView::mouseMoveEvent(QMouseEvent* event) {
 
         update();
         QRect rectangle;
-        rectangle.setBottomRight(QPoint(x.second, y.second));
+        rectangle.setBottomRight(QPoint(x.second - 1, y.second - 1));
         rectangle.setTopLeft(QPoint(x.first, y.first));
 
         emit PointRectChanged(rectangle);
@@ -91,10 +91,10 @@ void ImageView::mouseReleaseEvent(QMouseEvent* event) {
         qreal x2 = rect.topLeft().x();
         qreal y2 = rect.topLeft().y();
 
-        std::pair<qreal, qreal> x = searchMinMax(x1, x2, image.width() - 1);
-        std::pair<qreal, qreal> y = searchMinMax(y1, y2, image.height() - 1);
+        std::pair<qreal, qreal> x = searchMinMax(x1, x2, image.width());
+        std::pair<qreal, qreal> y = searchMinMax(y1, y2, image.height());
 
-        rect.setBottomRight(QPoint(x.second, y.second));
+        rect.setBottomRight(QPoint(x.second - 1, y.second - 1));
         rect.setTopLeft(QPoint(x.first, y.first));
 
         update();
@@ -165,10 +165,10 @@ void ImageView::setRectH(int height) {
         emit IncorrectSelectionSize(0, max);
     }
     else
-        rect.setHeight(rect.height());
+        rect.setHeight(height);
     
     update();
-    emit PointRectChangedH(height);
+    emit PointRectChangedH(rect.height());
 }
 
 QRect ImageView::getRect() {

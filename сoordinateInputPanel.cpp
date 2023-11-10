@@ -20,8 +20,9 @@ CoordinateInputPanel::CoordinateInputPanel() {
 
 void CoordinateInputPanel::isEnabled(bool enable) {
 	enable = !enable;
-	inputFieldX->inputDialog->setReadOnly(enable);
-	inputFieldY->inputDialog->setReadOnly(enable);
-	inputFieldW->inputDialog->setReadOnly(enable);
-	inputFieldH->inputDialog->setReadOnly(enable);
+
+	for (auto el : { inputFieldX, inputFieldY, inputFieldW, inputFieldH }) {
+		el->inputDialog->setReadOnly(enable);
+		el->inputDialog->setText("");
+	}
 }

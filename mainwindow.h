@@ -40,6 +40,8 @@ protected:
 public slots:
 	void changingFields(QRect rect);
 
+	void creatingTab(QPixmap pixmap);
+
 	void sizeErrorWindowOutput(int min, int max);
 
 	void openFileDialog();
@@ -47,4 +49,6 @@ public slots:
 	void selectTab(int x);
 
 	void slotCloseTab(int index);
+
+	void recipientOfImageData(int index, QRect* rect);
 };

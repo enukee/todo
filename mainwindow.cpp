@@ -12,6 +12,12 @@ void MainWindow::openFileDialog() {
 	processingWindow->addFile(fileName);
 }
 
+void MainWindow::creatingTab(QPixmap pixmap) {
+	ImgWidget* img = new ImgWidget(pixmap);
+	tabWidget->addTab(img, "new file");
+	tabWidget->setCurrentWidget(img);
+}
+
 void MainWindow::connectingGraphicWidget(ImgWidget* widget) {
 	// изменение значения полей при изменениии выделения
 	connect(widget->image, SIGNAL(PointRectChanged(QRect)),
@@ -140,7 +146,7 @@ MainWindow::MainWindow() {
 	processingWindow = new ProcessingWidget();
 
 	tabWidget = new QTabWidget();
-	tabWidget->setMovable(true);
+	//tabWidget->setMovable(true);
 	tabWidget->setTabsClosable(true);
 	//tabWidget->setUsersScrollButtons(true);
 	lauout->addWidget(tabWidget);
@@ -179,6 +185,12 @@ MainWindow::MainWindow() {
 	//
 	connect(tabWidget, SIGNAL(tabCloseRequested(int)), this, SLOT(slotCloseTab(int)));
 
+	connect(processingWindow, SIGNAL(getterDataForProcessing(int, QRect*)), 
+		this, SLOT(recipientOfImageData(int, QRect*)));
+
+	connect(processingWindow, SIGNAL(creatingNewTab(QPixmap)),
+		this, SLOT(creatingTab(QPixmap)));
+
 	// подключение текущего виджета
 	//selectTab(0);
 
@@ -192,6 +204,13 @@ MainWindow::MainWindow() {
 
 	centralWidget->setLayout(lauout);
 	setCentralWidget(centralWidget);
+}
+
+void MainWindow::recipientOfImageData(int index, QRect* rect) {
+	QWidget* widget = tabWidget->widget(index);
+	ImgWidget* currentWidget = dynamic_cast<ImgWidget*>(widget);
+
+	*rect = currentWidget->image->getRect();
 }
 
 void MainWindow::closeEvent(QCloseEvent* event)
@@ -215,7 +234,9 @@ void MainWindow::slotCloseTab(int index) {
 	ImgWidget* widgetToDeleted = dynamic_cast<ImgWidget*>(widget);
 	disablingGraphicalWidget(widgetToDeleted);
 	tabWidget->removeTab(index);
-	delete widgetToDeleted;
+	delete widget;
+
+	processingWindow->deleteItem(index);
 
 	if (tabWidget->currentIndex() == -1){
 		currentWidget = NULL;

@@ -28,7 +28,8 @@ private:
 	QCursor cursorTarget;
 
 public:
-	explicit ImgWidget(QString imgPath);
+	ImgWidget(QString imgPath);
+	explicit ImgWidget(QPixmap pixmap);
 
 protected:
 	void wheelEvent(QWheelEvent* event) override;

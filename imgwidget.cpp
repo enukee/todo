@@ -1,6 +1,9 @@
 #include "imgwidget.h"
 
-ImgWidget::ImgWidget(QString imgPath) {
+ImgWidget::ImgWidget(QString imgPath) : ImgWidget(QPixmap(imgPath)){
+}
+
+ImgWidget::ImgWidget(QPixmap pixmap) {
     scroll = new QScrollArea;
     scroll->setAlignment(Qt::AlignCenter);
     // disable wheel event for scroll
@@ -9,7 +12,7 @@ ImgWidget::ImgWidget(QString imgPath) {
     this->setLayout(new QBoxLayout(QBoxLayout::LeftToRight));
     this->layout()->addWidget(scroll);
 
-    image = new ImageView(QPixmap(imgPath));
+    image = new ImageView(pixmap);
     scroll->setWidget(image);
 
     cursorTarget = QCursor(Qt::CrossCursor);
