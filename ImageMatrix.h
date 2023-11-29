@@ -15,10 +15,6 @@ protected:
 public:
 	ImageMatrix(unsigned int height, unsigned int width);
 
-	// constructor of a matrix consisting of 2 matrices img_1 and img_2, 
-	// where coord_1 and coord_2 are the coordinates of a single point
-	ImageMatrix(ImageMatrix* img_1, ImageMatrix* img_2, coordinates coord_1, coordinates coord_2);
-
 	~ImageMatrix();
 
 	void set_pixel(Pixel<BYTE> value, unsigned int i, unsigned int j);

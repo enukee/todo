@@ -14,7 +14,7 @@ void MainWindow::openFileDialog() {
 
 void MainWindow::creatingTab(QPixmap pixmap) {
 	ImgWidget* img = new ImgWidget(pixmap);
-	tabWidget->addTab(img, "new file");
+	tabWidget->addTab(img, "new file*");
 	tabWidget->setCurrentWidget(img);
 }
 
@@ -136,6 +136,61 @@ void MainWindow::sizeErrorWindowOutput(int min, int max) {
 	setEnabled(true);
 }
 
+void MainWindow::startProcessing() {
+	processingWindow->hide();
+	QByteArray ba_1 = processingWindow->list1->currentText().toLocal8Bit();
+	QByteArray ba_2 = processingWindow->list2->currentText().toLocal8Bit();
+
+	char* way_1 = ba_1.data();
+	char* way_2 = ba_2.data();
+
+	QRect rect_1;
+	recipientOfImageData(processingWindow->list1->currentIndex(), &rect_1);
+
+	QRect rect_2;
+	recipientOfImageData(processingWindow->list2->currentIndex(), &rect_2);
+
+	std::string w1(way_1);
+	std::string w2(way_2);
+
+	std::thread thread(&MainWindow::combiningImage, this, w1, w2, rect_1, rect_2);
+	thread.detach();
+	/*QMessageBox msgBox;
+	msgBox.setWindowTitle("The merger was successful");
+	msgBox.setText("Intersection coordinates\n x:" + QString::number(coord.x) +
+		tr("   \n y:") + QString::number(coord.y));
+	msgBox.exec();*/
+}
+
+void MainWindow::combiningImage(std::string w1, std::string w2, QRect rect_1, QRect rect_2){
+
+	const char* way_1 = w1.c_str();
+	const char* way_2 = w2.c_str();
+
+	auto qrectToCoord = [](QRect rect) {
+		coordinates coord;
+		coord.x = rect.x();
+		coord.y = rect.y();
+		coord.width = rect.width();
+		coord.height = rect.height();
+		return coord;
+		};
+
+	ImageMatrix* combinedMatrix = matr::combiningImage(way_1, way_2, qrectToCoord(rect_1), qrectToCoord(rect_2));
+
+	QImage temp(combinedMatrix->get_width(), combinedMatrix->get_height(), QImage::Format_RGB888);
+
+	QColor color;
+	for (int y = 0; y < temp.height(); y++) {
+		for (int x = 0; x < temp.width(); x++) {
+			Pixel<BYTE> rgb = combinedMatrix->get_pixel(y, x);
+			color.setRgb(rgb.canal_R, rgb.canal_G, rgb.canal_B);
+			temp.setPixelColor(x, y, color);
+		}
+	}
+
+	creatingNewTab(QPixmap::fromImage(temp));
+}
 
 MainWindow::MainWindow() {
 	setWindowTitle("Merging Images");
@@ -177,7 +232,7 @@ MainWindow::MainWindow() {
 
 	// Сохранение файла .bmp
 	QAction* combining = new QAction("Combining");
-	connect(combining, SIGNAL(triggered()), this->processingWindow, SLOT(show()));
+	connect(combining, SIGNAL(triggered()), processingWindow, SLOT(show()));
 
 	// изменение значений выделения при переключениии вкладки
 	connect(tabWidget, SIGNAL(currentChanged(int)), this, SLOT(selectTab(int)));
@@ -185,11 +240,9 @@ MainWindow::MainWindow() {
 	//
 	connect(tabWidget, SIGNAL(tabCloseRequested(int)), this, SLOT(slotCloseTab(int)));
 
-	connect(processingWindow, SIGNAL(getterDataForProcessing(int, QRect*)), 
-		this, SLOT(recipientOfImageData(int, QRect*)));
+	connect(processingWindow->processingButton, SIGNAL(clicked()), this, SLOT(startProcessing()));
 
-	connect(processingWindow, SIGNAL(creatingNewTab(QPixmap)),
-		this, SLOT(creatingTab(QPixmap)));
+	connect(this, SIGNAL(creatingNewTab(QPixmap)), this, SLOT(creatingTab(QPixmap)));
 
 	// подключение текущего виджета
 	//selectTab(0);

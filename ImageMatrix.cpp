@@ -16,50 +16,6 @@ ImageMatrix::ImageMatrix(unsigned int height, unsigned int width) {
 	}
 }
 
-ImageMatrix::ImageMatrix(ImageMatrix* img_1, ImageMatrix* img_2, coordinates coord_1, coordinates coord_2) {
-	unsigned int Height;
-	unsigned int Width;
-
-	coordinates coord_general_image_1;
-	coordinates coord_general_image_2;
-
-	if (coord_1.x < coord_2.x) {
-		coord_general_image_1.x = coord_2.x - coord_1.x;
-		coord_general_image_2.x = 0;
-		Width = img_1->get_width() + coord_general_image_1.x;
-	}
-
-	if (coord_1.x > coord_2.x) {
-		coord_general_image_1.x = 0;
-		coord_general_image_2.x = coord_1.x - coord_2.x;
-		Width = img_2->get_width() + coord_general_image_2.x;
-	}
-
-	if (coord_1.y < coord_2.y) {
-		coord_general_image_1.y = coord_2.y - coord_1.y;
-		coord_general_image_2.y = 0;
-		Height = img_1->get_height() + coord_general_image_1.y;
-	}
-
-	if (coord_1.y > coord_2.y) {
-		coord_general_image_1.y = 0;
-		coord_general_image_2.y = coord_1.y - coord_2.y;
-		Height = img_2->get_height() + coord_general_image_2.y;
-	}
-
-	img_Height = Height;
-	img_Width = Width;
-
-	matrix = new Pixel<BYTE> *[img_Height];
-	for (unsigned int i = 0; i < img_Height; i++) {
-		matrix[i] = new Pixel<BYTE>[img_Width];
-	}
-
-	recording(img_2, coord_general_image_2.y, coord_general_image_2.x);
-
-	recording(img_1, coord_general_image_1.y, coord_general_image_1.x);
-}
-
 ImageMatrix::~ImageMatrix() {
 	for (unsigned int i = 0; i < img_Height; i++) {
 		delete[] matrix[i];

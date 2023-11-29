@@ -34,8 +34,13 @@ private:
 	void connectingGraphicWidget(ImgWidget* currentWidget);
 	void disablingGraphicalWidget(ImgWidget* currentWidget);
 
+	void combiningImage(std::string w1, std::string w2, QRect rect_1, QRect rect_2);
+
 protected:
 	void closeEvent(QCloseEvent* event);
+
+signals:
+	void creatingNewTab(QPixmap pixmap);
 
 public slots:
 	void changingFields(QRect rect);
@@ -47,6 +52,8 @@ public slots:
 	void openFileDialog();
 
 	void selectTab(int x);
+
+	void startProcessing();
 
 	void slotCloseTab(int index);
 

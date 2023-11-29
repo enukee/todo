@@ -13,7 +13,7 @@ private:
 
 public:
 
-	BmpFile(char* way);
+	BmpFile(const char* way);
 	BmpFile(ImageMatrix* Bitmap);
 
 	void bmp_writer(char* way);	
