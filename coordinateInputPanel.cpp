@@ -1,7 +1,17 @@
-#include "ñoordinateInputPanel.h"
+#include "coordinateInputPanel.h"
 
 CoordinateInputPanel::CoordinateInputPanel() {
+	QVBoxLayout* toolLauout = new QVBoxLayout();
+
+	QLabel* progressLabel = new QLabel("Process:");
+	progressBar = new QProgressBar();
+	toolLauout->addWidget(progressLabel);
+	toolLauout->addWidget(progressBar);
+
+	QWidget* widgetField = new QWidget();
 	QGridLayout* layoutField = new QGridLayout();
+	widgetField->setLayout(layoutField);
+	toolLauout->addWidget(widgetField);
 
 	// ïîëå ââîäà êîîðäèíàòû
 	inputFieldX = new InputField("coordinate X : ");
@@ -12,10 +22,12 @@ CoordinateInputPanel::CoordinateInputPanel() {
 	layoutField->addWidget(inputFieldW, 1, 0);
 	inputFieldH = new InputField("height : ");
 	layoutField->addWidget(inputFieldH, 1, 1);
-	setLayout(layoutField);
-	setMaximumSize(300, inputFieldX->sizeHint().height() * 2);
+	setMaximumSize(300, inputFieldX->sizeHint().height() * 2 
+		+ progressBar->sizeHint().height() + 30 + progressLabel->sizeHint().height());
 
 	isEnabled(false);
+
+	setLayout(toolLauout);
 }
 
 void CoordinateInputPanel::isEnabled(bool enable) {
@@ -25,4 +37,8 @@ void CoordinateInputPanel::isEnabled(bool enable) {
 		el->inputDialog->setReadOnly(enable);
 		el->inputDialog->setText("");
 	}
+}
+
+void CoordinateInputPanel::progressChange(int value) {
+	progressBar->setValue(value);
 }

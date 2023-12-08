@@ -13,10 +13,11 @@
 
 #include "imgwidget.h"
 #include "processingWidget.h"
-#include "ñoordinateInputPanel.h"
+#include "coordinateInputPanel.h"
 
-class MainWindow : public QMainWindow
-{
+#include "bmp/matrixProcessing.h"
+
+class MainWindow : public QMainWindow {
 	Q_OBJECT
 
 public:
@@ -24,6 +25,9 @@ public:
 	ImgWidget* currentWidget;
 
 	CoordinateInputPanel* panelInput;
+
+	ProgressBarValue* progress;
+	std::thread* thread;
 
 	ProcessingWidget* processingWindow;
 

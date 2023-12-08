@@ -10,8 +10,6 @@
 #include <thread>
 #include <future>
 
-#include "matrixProcessing.h"
-
 // a widget that will receive information about the location of files and process them
 class ProcessingWidget : public QWidget {
 	Q_OBJECT

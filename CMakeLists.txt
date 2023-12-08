@@ -7,8 +7,9 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 add_executable(helloworld "main.cpp" "mainwindow.cpp" "mainwindow.h" "imgwidget.cpp" "imgwidget.h" "ImageView.cpp" "ImageView.h" 
-"InputField.h" "InputField.cpp" "processingWidget.cpp" "processingWidget.h" "сoordinateInputPanel.cpp" "сoordinateInputPanel.h" 
-"BmpFile.cpp" "BmpFile.h" "ImageMatrix.cpp" "ImageMatrix.h" "pixel.h" "matrixProcessing.cpp" "matrixProcessing.h")
+"InputField.h" "InputField.cpp" "processingWidget.cpp" "processingWidget.h" "coordinateInputPanel.cpp" "coordinateInputPanel.h" 
+"bmp/BmpFile.cpp" "bmp/BmpFile.h" "bmp/ImageMatrix.cpp" "bmp/ImageMatrix.h" "bmp/pixel.h" "bmp/matrixProcessing.cpp" "bmp/matrixProcessing.h" 
+"bmp/progressValue.cpp" "bmp/progressValue.h")
 
 set_property(TARGET helloworld PROPERTY CXX_STANDARD 17)
 

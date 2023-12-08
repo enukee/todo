@@ -1,5 +1,5 @@
 #include "processingWidget.h"
-#include "BmpFile.h"
+#include "bmp/BmpFile.h"
 
 ProcessingWidget::ProcessingWidget() {
 	setWindowTitle("Combining an image");
