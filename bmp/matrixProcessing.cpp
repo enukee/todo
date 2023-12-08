@@ -20,13 +20,20 @@ ImageMatrix* matr::combiningImage(ProgressBarValue* progress, const char* w1, co
 	coordinates coord;
 	bool similar = 0;
 	search_inside_img(progress, &Bitmap_1, &Bitmap_2, 0, search_area_h, &similar, &coord);
+	if (similar) {
+		coord.x += rect_1.x;
+		coord.y += rect_1.y;
+		coord.width = rect_2.width;
+		coord.height = rect_2.height;
 
-	coord.x += rect_1.x;
-	coord.y += rect_1.y;
+		brightness_correction(progress, &img_1, &img_2, coord, rect_2);
 
-	ImageMatrix* combinedMatrix = matr::combiningMatrices(progress, &img_1, &img_2, coord, rect_2);
+		ImageMatrix* combinedMatrix = matr::combiningMatrices(progress, &img_1, &img_2, coord, rect_2);
 
-	return combinedMatrix;
+		return combinedMatrix;
+	}
+	progress->setValue(0);
+	return nullptr;
 }
 
 ImageMatrix* matr::combiningMatrices(ProgressBarValue* progress, ImageMatrix* img_1, ImageMatrix* img_2, coordinates coord_1, coordinates coord_2) {
@@ -86,7 +93,7 @@ void matr::search_inside_img(ProgressBarValue* progress, ImageMatrix* Bitmap1, I
 	max_coef_cor.canal_G = 0.5;
 	max_coef_cor.canal_B = 0.5;
 
-	double inc = (double)60 / ((double)search_area_w * (double)search_area_h);
+	double inc = (double)70 / ((double)search_area_w * (double)search_area_h);
 	double progValue = 10;
 
 	for (unsigned int i = a; i < b; i++) {
@@ -111,9 +118,89 @@ void matr::search_inside_img(ProgressBarValue* progress, ImageMatrix* Bitmap1, I
 			}
 		}
 	}
-	progress->setValue(60);
+	progress->setValue(80);
 
 	*similar = flag;
 	*coord = coord_img;
+	return;
+}
+
+// метод корректирования яркости
+void matr::brightness_correction(ProgressBarValue* progress, BmpFile* img_1, BmpFile* img_2, coordinates coord_img_1, coordinates coord_img_2) {
+
+	// создание матрицы части пересечения первого изображения
+	ImageMatrix Bitmap_1(coord_img_1.height, coord_img_1.width);
+
+	// заполнения первой матрицы 
+	Bitmap_1.cut_out(img_1, coord_img_1.y, coord_img_1.x);
+
+	// создание матрицы части пересечения второго изображения
+	ImageMatrix Bitmap_2(coord_img_2.height, coord_img_2.width);
+
+	// заполнения второй матрицы 
+	Bitmap_2.cut_out(img_2, coord_img_2.y, coord_img_2.x);
+
+	progress->setValue(80);
+
+	Pixel<double> sco_1 = Bitmap_1.finding_sd();
+	Pixel<double> sco_2 = Bitmap_2.finding_sd();
+	Pixel<double> mo_1 = Bitmap_1.finding_avg();
+	Pixel<double> mo_2 = Bitmap_2.finding_avg();
+
+
+	Pixel<double> sco;
+	Pixel<double> mo;
+
+	if (((sco_1.canal_R > -0.5) && (sco_1.canal_R < 0.5)) || ((sco_2.canal_R > -0.5) && (sco_2.canal_R < 0.5))) {
+		sco.canal_R = 1;
+	}
+	else {
+		sco.canal_R = sco_1.canal_R / sco_2.canal_R;
+	}
+
+	if (((sco_1.canal_G > -0.5) && (sco_1.canal_G < 0.5)) || ((sco_2.canal_G > -0.5) && (sco_2.canal_G < 0.5))) {
+		sco.canal_G = 1;
+	}
+	else {
+		sco.canal_G = sco_1.canal_G / sco_2.canal_G;
+	}
+
+	if (((sco_1.canal_B > -0.5) && (sco_1.canal_B < 0.5)) || ((sco_2.canal_B > -0.5) && (sco_2.canal_B < 0.5))) {
+		sco.canal_B = 1;
+	}
+	else {
+		sco.canal_B = sco_1.canal_B / sco_2.canal_B;
+	}
+
+	mo = mo_1 - (mo_2 * sco);
+
+	Pixel<BYTE> byte;
+	unsigned int height = img_2->get_height();
+	unsigned int width = img_2->get_width();
+
+	double inc = (double)15 / ((double)height * (double)width);
+	double progValue = 80;
+
+	auto color_correction = [](Pixel<double> pixel, Pixel<double>sco, Pixel<double>mo) {
+		Pixel<double> value;
+		value = pixel * sco + mo;
+
+		Pixel<BYTE> pixel_1;
+		pixel_1 = value.to_BYTE();
+
+		return pixel_1;
+	};
+
+	for (unsigned int i = 0; i < height; i++) {
+		for (unsigned int j = 0; j < width; j++) {
+			byte = img_2->get_pixel(i, j);
+			byte = color_correction(byte.to_double(), sco, mo);
+			img_2->set_pixel(byte, i, j);
+
+			progValue += inc;
+			progress->setValue(progValue);
+		}
+	}
+
 	return;
 }

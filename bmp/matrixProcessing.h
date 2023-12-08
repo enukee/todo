@@ -9,4 +9,7 @@ namespace matr {
 	ImageMatrix* combiningImage(ProgressBarValue* progress, const char* w1, const char* w2, coordinates rect_1, coordinates rect_2);
 
 	void search_inside_img(ProgressBarValue* progress, ImageMatrix* Bitmap1, ImageMatrix* Bitmap2, unsigned int a, unsigned int b, bool* similar, coordinates* coord);
+
+	void brightness_correction(ProgressBarValue* progress, BmpFile* img_1, BmpFile* img_2, coordinates coord_img_1, coordinates coord_img_2);
+
 }

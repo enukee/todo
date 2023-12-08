@@ -1,4 +1,4 @@
-﻿#include "mainwindow.h"
+#include "mainwindow.h"
 
 void MainWindow::openFileDialog() {
 	QString fileName = QFileDialog::getOpenFileName(this,
@@ -142,6 +142,14 @@ void MainWindow::startProcessing() {
 	msgBox.exec();*/
 }
 
+void MainWindow::createMessageBox(QString strTitle, QString strText) {
+	QMessageBox* mb = new QMessageBox();
+	mb->setAttribute(Qt::WA_DeleteOnClose, true);
+	mb->setWindowTitle("Ошибка");
+	mb->setText("Пересечение не найдено");
+	mb->show();
+}
+
 void MainWindow::combiningImage(std::string w1, std::string w2, QRect rect_1, QRect rect_2) {
 
 	const char* way_1 = w1.c_str();
@@ -157,6 +165,12 @@ void MainWindow::combiningImage(std::string w1, std::string w2, QRect rect_1, QR
 		};
 
 	ImageMatrix* combinedMatrix = matr::combiningImage(progress, way_1, way_2, qrectToCoord(rect_1), qrectToCoord(rect_2));
+
+	if (combinedMatrix == nullptr) {
+		emit callingMessageBox("Ошибка", "Пересечение не найдено");
+
+		return;
+	}
 
 	QImage temp(combinedMatrix->get_width(), combinedMatrix->get_height(), QImage::Format_RGB888);
 
@@ -226,6 +240,8 @@ MainWindow::MainWindow() {
 	connect(this, SIGNAL(creatingNewTab(QPixmap)), this, SLOT(creatingTab(QPixmap)));
 
 	connect(progress, SIGNAL(valueChange(int)), panelInput, SLOT(progressChange(int)));
+
+	connect(this, SIGNAL(callingMessageBox(QString, QString)), this, SLOT(createMessageBox(QString, QString)));
 
 	//selectTab(0);
 

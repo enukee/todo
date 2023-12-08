@@ -46,6 +46,8 @@ protected:
 signals:
 	void creatingNewTab(QPixmap pixmap);
 
+	void callingMessageBox(QString strTitle, QString strText);
+
 public slots:
 	void changingFields(QRect rect);
 
@@ -62,4 +64,6 @@ public slots:
 	void slotCloseTab(int index);
 
 	void recipientOfImageData(int index, QRect* rect);
+
+	void createMessageBox(QString strTitle, QString strText);
 };
