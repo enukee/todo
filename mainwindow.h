@@ -27,7 +27,7 @@ public:
 	CoordinateInputPanel* panelInput;
 
 	ProgressBarValue* progress;
-	std::thread* thread;
+	std::thread* thread = nullptr;
 
 	ProcessingWidget* processingWindow;
 
@@ -47,6 +47,8 @@ signals:
 	void creatingNewTab(QPixmap pixmap);
 
 	void callingMessageBox(QString strTitle, QString strText);
+	
+	void completionOfWork();
 
 public slots:
 	void changingFields(QRect rect);

@@ -14,8 +14,16 @@ void MainWindow::openFileDialog() {
 
 void MainWindow::creatingTab(QPixmap pixmap) {
 	ImgWidget* img = new ImgWidget(pixmap);
-	tabWidget->addTab(img, "new file*");
+	int n = 0;
+	while (((processingWindow->list1)->findText("new file" + QString::number(n))) != -1) {
+		n++;
+	}
+
+	//ImgWidget* tab = tabWidget->findChild<ImgWidget*>("sdf", Qt::FindChildrenRecursively);
+		
+	tabWidget->addTab(img, "new file" + QString::number(n));
 	tabWidget->setCurrentWidget(img);
+	processingWindow->addFile("new file" + QString::number(n));
 }
 
 void MainWindow::connectingGraphicWidget(ImgWidget* widget) {
@@ -121,40 +129,27 @@ void MainWindow::startProcessing() {
 	QByteArray ba_1 = processingWindow->list1->currentText().toLocal8Bit();
 	QByteArray ba_2 = processingWindow->list2->currentText().toLocal8Bit();
 
-	char* way_1 = ba_1.data();
-	char* way_2 = ba_2.data();
-
 	QRect rect_1;
 	recipientOfImageData(processingWindow->list1->currentIndex(), &rect_1);
 
 	QRect rect_2;
 	recipientOfImageData(processingWindow->list2->currentIndex(), &rect_2);
 
-	std::string w1(way_1);
-	std::string w2(way_2);
+	std::string w1(ba_1.data());
+	std::string w2(ba_2.data());
 
 	thread = new std::thread(&MainWindow::combiningImage, this, w1, w2, rect_1, rect_2);
-	thread->detach();
-	/*QMessageBox msgBox;
-	msgBox.setWindowTitle("The merger was successful");
-	msgBox.setText("Intersection coordinates\n x:" + QString::number(coord.x) +
-		tr("   \n y:") + QString::number(coord.y));
-	msgBox.exec();*/
 }
 
 void MainWindow::createMessageBox(QString strTitle, QString strText) {
 	QMessageBox* mb = new QMessageBox();
 	mb->setAttribute(Qt::WA_DeleteOnClose, true);
-	mb->setWindowTitle("Ошибка");
-	mb->setText("Пересечение не найдено");
+	mb->setWindowTitle(strTitle);
+	mb->setText(strText);
 	mb->show();
 }
 
 void MainWindow::combiningImage(std::string w1, std::string w2, QRect rect_1, QRect rect_2) {
-
-	const char* way_1 = w1.c_str();
-	const char* way_2 = w2.c_str();
-
 	auto qrectToCoord = [](QRect rect) {
 		coordinates coord;
 		coord.x = rect.x();
@@ -164,10 +159,11 @@ void MainWindow::combiningImage(std::string w1, std::string w2, QRect rect_1, QR
 		return coord;
 		};
 
-	ImageMatrix* combinedMatrix = matr::combiningImage(progress, way_1, way_2, qrectToCoord(rect_1), qrectToCoord(rect_2));
+	ImageMatrix* combinedMatrix = matr::combiningImage(progress, w1.c_str(), w2.c_str(), qrectToCoord(rect_1), qrectToCoord(rect_2));
 
 	if (combinedMatrix == nullptr) {
-		emit callingMessageBox("Ошибка", "Пересечение не найдено");
+		if (!progress->isProcessStopped())
+			emit callingMessageBox("Ошибка", "Пересечение не найдено");
 
 		return;
 	}
@@ -212,38 +208,39 @@ MainWindow::MainWindow() {
 	toolLayout->addWidget(panelInput);
 	toolWidget->setLayout(toolLayout);
 
-	// äîáàâëåíèÿ âèäæåòà äëÿ îòëàäêè
-	/*ImgWidget* img = new ImgWidget("C:/Users/vi/Pictures/Saved Pictures/5120x2880-UHD.bmp");
-	tabWidget->addTab(img, "fileName");
-	processingWindow->addFile("fileName");*/
 
-	// Îòêðûòèå ôàéëà .bmp
+	// Открытие файла .bmp
 	QAction* actionOpen = new QAction("Open");
 	connect(actionOpen, SIGNAL(triggered()), this, SLOT(openFileDialog()));
 
-	// Ñîõðàíåíèå ôàéëà .bmp
+	// Создание файла .bmp
 	QAction* actionSave = new QAction("Save");
 	connect(actionSave, SIGNAL(triggered()), this, SLOT(openFileDialog()));
 
-	// Ñîõðàíåíèå ôàéëà .bmp
+	// Обработка файлов .bmp
 	QAction* combining = new QAction("Combining");
 	connect(combining, SIGNAL(triggered()), processingWindow, SLOT(show()));
 
-	// èçìåíåíèå çíà÷åíèé âûäåëåíèÿ ïðè ïåðåêëþ÷åíèèè âêëàäêè
+	// изменение данный при изменение вкладки
 	connect(tabWidget, SIGNAL(currentChanged(int)), this, SLOT(selectTab(int)));
 
-	//
+	// закрытие вклаки 
 	connect(tabWidget, SIGNAL(tabCloseRequested(int)), this, SLOT(slotCloseTab(int)));
 
+	// начало обрабоки при нажатии на кнопки
 	connect(processingWindow->processingButton, SIGNAL(clicked()), this, SLOT(startProcessing()));
 
+	// создание новой вклаки после объединения изображений
 	connect(this, SIGNAL(creatingNewTab(QPixmap)), this, SLOT(creatingTab(QPixmap)));
 
+	// изменение значания progressBarValue 
 	connect(progress, SIGNAL(valueChange(int)), panelInput, SLOT(progressChange(int)));
 
-	connect(this, SIGNAL(callingMessageBox(QString, QString)), this, SLOT(createMessageBox(QString, QString)));
+	// подача сигнала progressBarValue о завершении работы программы
+	connect(this, SIGNAL(completionOfWork()), progress, SLOT(stopProcess()));
 
-	//selectTab(0);
+	// вызов MessegeBox
+	connect(this, SIGNAL(callingMessageBox(QString, QString)), this, SLOT(createMessageBox(QString, QString)));
 
 	QMenu* fileMenu = menuBar()->addMenu(tr("&File"));
 	fileMenu->addAction(actionOpen);
@@ -252,6 +249,29 @@ MainWindow::MainWindow() {
 	image->addAction(combining);
 
 	QMenu* helpMenu = menuBar()->addMenu("Help");
+
+	QString way1 = "C:/Users/vi/Pictures/Saved Pictures/image/п_3/file_1.bmp";
+	ImgWidget* img1 = new ImgWidget(way1);
+	tabWidget->addTab(img1, way1);
+	tabWidget->setCurrentWidget(img1);
+
+	processingWindow->addFile(way1);
+	img1->image->setRectX(376);
+	img1->image->setRectY(121);
+	img1->image->setRectW(130);
+	img1->image->setRectH(151);
+
+	QString way2 = "C:/Users/vi/Pictures/Saved Pictures/image/п_3/file_2.bmp";
+	ImgWidget* img2 = new ImgWidget(way2);
+	tabWidget->addTab(img2, way2);
+	tabWidget->setCurrentWidget(img2);
+
+	processingWindow->addFile(way2);
+	img2->image->setRectX(98);
+	img2->image->setRectY(28);
+	img2->image->setRectW(43);
+	img2->image->setRectH(54);
+
 
 	centralWidget->setLayout(lauout);
 	setCentralWidget(centralWidget);
@@ -264,20 +284,21 @@ void MainWindow::recipientOfImageData(int index, QRect* rect) {
 	*rect = currentWidget->image->getRect();
 }
 
-void MainWindow::closeEvent(QCloseEvent* event)
-{
-	/*QMessageBox::StandardButton resBtn = QMessageBox::question(this, APP_NAME,
+void MainWindow::closeEvent(QCloseEvent* event) {
+	QMessageBox::StandardButton resBtn = QMessageBox::question(this, "awd",
 		tr("Are you sure?\n"),
-		QMessageBox::Cancel | QMessageBox::No | QMessageBox::Yes,
-		QMessageBox::Yes);
+		QMessageBox::No | QMessageBox::Yes);
 	if (resBtn != QMessageBox::Yes) {
 		event->ignore();
 	}
 	else {
-		event->accept();
-	}*/
+		if (thread != nullptr) {
+			emit completionOfWork();
+			thread->join();
+		}
 
-	event->accept();
+		event->accept();
+	}
 }
 
 void MainWindow::slotCloseTab(int index) {

@@ -4,6 +4,7 @@ using namespace std;
 #define ALING4(x) ((((x)-1)/4+1)*4) //Макрос - дополнение величины до ближайшей кратной 4
 
 BmpFile::BmpFile(const char* way) : ImageMatrix() {
+	//std::fstream
 	hFile = _lopen(way, OF_READ);
 	if (hFile != HFILE_ERROR) //Если файл открылся нормально
 	{

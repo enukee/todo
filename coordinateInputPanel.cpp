@@ -13,7 +13,7 @@ CoordinateInputPanel::CoordinateInputPanel() {
 	widgetField->setLayout(layoutField);
 	toolLauout->addWidget(widgetField);
 
-	// ïîëå ââîäà êîîðäèíàòû
+	// Ð¿Ð¾Ð»Ðµ Ð²Ð²Ð¾Ð´Ð° ÐºÐ¾Ð¾Ñ€Ð´Ð¸Ð½Ð°Ñ‚Ñ‹
 	inputFieldX = new InputField("coordinate X : ");
 	layoutField->addWidget(inputFieldX, 0, 0);
 	inputFieldY = new InputField("coordinate Y : ");

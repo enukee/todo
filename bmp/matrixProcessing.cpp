@@ -12,7 +12,9 @@ ImageMatrix* matr::combiningImage(ProgressBarValue* progress, const char* w1, co
 	ImageMatrix Bitmap_2(rect_2.height, rect_2.width);
 	// Записываем в неё нужный фрагмент
 	Bitmap_2.cut_out(&img_2, rect_2.y, rect_2.x);
-	progress->setValue(10);
+
+	// начльно значение  progressBar
+	progress->setValue(0);
 
 	unsigned int Height = Bitmap_2.get_height();
 	unsigned int search_area_h = Bitmap_1.get_height() - Height + 1;
@@ -20,6 +22,10 @@ ImageMatrix* matr::combiningImage(ProgressBarValue* progress, const char* w1, co
 	coordinates coord;
 	bool similar = 0;
 	search_inside_img(progress, &Bitmap_1, &Bitmap_2, 0, search_area_h, &similar, &coord);
+
+	// максимальное значение progressBar для этого этапа вычислений
+	progress->setValue(80);
+
 	if (similar) {
 		coord.x += rect_1.x;
 		coord.y += rect_1.y;
@@ -30,9 +36,10 @@ ImageMatrix* matr::combiningImage(ProgressBarValue* progress, const char* w1, co
 
 		ImageMatrix* combinedMatrix = matr::combiningMatrices(progress, &img_1, &img_2, coord, rect_2);
 
+		// конечное значение  progressBar
+		progress->setValue(100);
 		return combinedMatrix;
 	}
-	progress->setValue(0);
 	return nullptr;
 }
 
@@ -42,8 +49,6 @@ ImageMatrix* matr::combiningMatrices(ProgressBarValue* progress, ImageMatrix* im
 
 	unsigned int Height;
 	unsigned int Width;
-
-	progress->setValue(95);
 
 	if (coord_1.x < coord_2.x) {
 		coord_general_image_1.x = coord_2.x - coord_1.x;
@@ -69,7 +74,6 @@ ImageMatrix* matr::combiningMatrices(ProgressBarValue* progress, ImageMatrix* im
 
 	Bitmap->recording(img_1, coord_general_image_1.y, coord_general_image_1.x);
 
-	progress->setValue(100);
 	return Bitmap;
 }
 
@@ -89,12 +93,14 @@ void matr::search_inside_img(ProgressBarValue* progress, ImageMatrix* Bitmap1, I
 	// структура хранения значений коэффициента корреляции для каждого канала
 	Pixel<double> coef_cor;
 	Pixel<double> max_coef_cor;
-	max_coef_cor.canal_R = 0.5;
-	max_coef_cor.canal_G = 0.5;
-	max_coef_cor.canal_B = 0.5;
+	max_coef_cor.canal_R = 0.7;
+	max_coef_cor.canal_G = 0.7;
+	max_coef_cor.canal_B = 0.7;
 
-	double inc = (double)70 / ((double)search_area_w * (double)search_area_h);
-	double progValue = 10;
+	// inc - Шаг увеличения progressBar (80 максимальное увеличение progressBar) 
+	double inc = 80.0 / ((double)search_area_w * (double)search_area_h);
+	// начальное значение progressBar
+	double progValue = progress->getValue();
 
 	for (unsigned int i = a; i < b; i++) {
 		for (unsigned int j = 0; j < search_area_w; j++) {
@@ -102,6 +108,7 @@ void matr::search_inside_img(ProgressBarValue* progress, ImageMatrix* Bitmap1, I
 
 			progValue += inc;
 			progress->setValue(progValue);
+
 			if (*similar) return;
 
 			if (coef_cor > max_coef_cor) {
@@ -117,8 +124,10 @@ void matr::search_inside_img(ProgressBarValue* progress, ImageMatrix* Bitmap1, I
 				return;
 			}
 		}
+
+		if (progress->isProcessStopped()) return;
 	}
-	progress->setValue(80);
+
 
 	*similar = flag;
 	*coord = coord_img;
@@ -139,8 +148,6 @@ void matr::brightness_correction(ProgressBarValue* progress, BmpFile* img_1, Bmp
 
 	// заполнения второй матрицы 
 	Bitmap_2.cut_out(img_2, coord_img_2.y, coord_img_2.x);
-
-	progress->setValue(80);
 
 	Pixel<double> sco_1 = Bitmap_1.finding_sd();
 	Pixel<double> sco_2 = Bitmap_2.finding_sd();
@@ -178,9 +185,10 @@ void matr::brightness_correction(ProgressBarValue* progress, BmpFile* img_1, Bmp
 	unsigned int height = img_2->get_height();
 	unsigned int width = img_2->get_width();
 
-	double inc = (double)15 / ((double)height * (double)width);
-	double progValue = 80;
-
+	// inc - Шаг увеличения progressBar (20 максимальное увеличение progressBar) 
+	double inc = (double)20 / ((double)height * (double)width);
+	// начально значение rogressBar 
+	double progValue = progress->getValue();
 	auto color_correction = [](Pixel<double> pixel, Pixel<double>sco, Pixel<double>mo) {
 		Pixel<double> value;
 		value = pixel * sco + mo;
@@ -200,7 +208,7 @@ void matr::brightness_correction(ProgressBarValue* progress, BmpFile* img_1, Bmp
 			progValue += inc;
 			progress->setValue(progValue);
 		}
-	}
 
-	return;
+		if (progress->isProcessStopped()) return;
+	}
 }
