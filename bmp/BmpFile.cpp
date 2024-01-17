@@ -1,7 +1,6 @@
 #include "BmpFile.h" 
 
 using namespace std;
-#define ALING4(x) ((((x)-1)/4+1)*4) //Макрос - дополнение величины до ближайшей кратной 4
 
 BmpFile::BmpFile(const char* way) : ImageMatrix() {
 	//std::fstream
@@ -14,13 +13,10 @@ BmpFile::BmpFile(const char* way) : ImageMatrix() {
 		img_Height = Head.biHeight;
 		img_Width = Head.biWidth; 
 
-		matrix = new Pixel<BYTE> *[img_Height];
-		for (unsigned int i = 0; i < img_Height; i++) {
-			matrix[i] = new Pixel<BYTE>[img_Width];
-		}
+		matrix = new Pixel<BYTE>[img_Height * img_Width];
 
 		char empty_bytes[4] = { 0 };
-		int w = ALING4(img_Width * 3) - img_Width * 3;
+		int w = aling4(img_Width * 3) - img_Width * 3;
 		BYTE* srok =new BYTE[img_Width*3];
 		for (int i = img_Height - 1; i >= 0; i--) {
 			_lread(hFile, (char*)srok, img_Width * 3);
@@ -32,12 +28,17 @@ BmpFile::BmpFile(const char* way) : ImageMatrix() {
 	}
 }
 
+int BmpFile::aling4(int value) {
+	value += (4 - (value % 4));
+	return value;
+}
+
 BmpFile::BmpFile(ImageMatrix* Bitmap) : ImageMatrix(Bitmap->get_height(),Bitmap->get_width()) {
 	for (unsigned int i = 0; i < img_Height; i++) {
 		for (unsigned int j = 0; j < img_Width; j++) {
-			matrix[i][j].canal_R = Bitmap->get_pixel(i, j).canal_R;
-			matrix[i][j].canal_G = Bitmap->get_pixel(i, j).canal_G;
-			matrix[i][j].canal_B = Bitmap->get_pixel(i, j).canal_B;
+			(*this)[i][j].canal_R = Bitmap->get_pixel(i, j).canal_R;
+			(*this)[i][j].canal_G = Bitmap->get_pixel(i, j).canal_G;
+			(*this)[i][j].canal_B = Bitmap->get_pixel(i, j).canal_B;
 		}
 	}
 
@@ -60,7 +61,7 @@ BmpFile::BmpFile(ImageMatrix* Bitmap) : ImageMatrix(Bitmap->get_height(),Bitmap-
 
 void BmpFile::bmp_writer(char* way) {
 	char empty_bytes[4] = { 0 };
-	int w = ALING4(img_Width * 3) - img_Width * 3;
+	int w = aling4(img_Width * 3) - img_Width * 3;
 	BYTE* srok = new BYTE[img_Width * 3];
 
 	hFile = _lcreat(way, 0);
@@ -84,16 +85,16 @@ void BmpFile::bmp_writer(char* way) {
 
 void BmpFile::pixel_matrix_in_bmp(unsigned int i, BYTE* strok) {
 	for (unsigned int j = 0; j < img_Width; j++) {
-		strok[j * 3] = matrix[i][j].canal_B;
-		strok[j * 3 + 1] = matrix[i][j].canal_G;
-		strok[j * 3 + 2] = matrix[i][j].canal_R;
+		strok[j * 3] = (*this)[i][j].canal_B;
+		strok[j * 3 + 1] = (*this)[i][j].canal_G;
+		strok[j * 3 + 2] = (*this)[i][j].canal_R;
 	}
 }
 
 void BmpFile::bmp_into_pixel_matrix(unsigned int i, BYTE* strok) {
 	for (unsigned int j = 0; j < img_Width ; j++) {
-		matrix[i][j].canal_B = strok[j * 3];
-		matrix[i][j].canal_G = strok[j * 3 + 1];
-		matrix[i][j].canal_R = strok[j * 3 + 2];
+		(*this)[i][j].canal_B = strok[j * 3];
+		(*this)[i][j].canal_G = strok[j * 3 + 1];
+		(*this)[i][j].canal_R = strok[j * 3 + 2];
 	}
 }

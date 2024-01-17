@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ImageMatrix.h"
-#define ALING4(x) ((((x)-1)/4+1)*4)
 
 ImageMatrix::ImageMatrix() {
 }
@@ -10,40 +9,35 @@ ImageMatrix::ImageMatrix(unsigned int height, unsigned int width) {
 	img_Height = height;
 	img_Width = width;
 
-	matrix = new Pixel<BYTE> *[img_Height];
-	for (unsigned int i = 0; i < img_Height; i++) {
-		matrix[i] = new Pixel<BYTE>[img_Width];
-	}
+	matrix = new Pixel<BYTE> [img_Height * img_Width];
 }
 
 ImageMatrix::~ImageMatrix() {
-	for (unsigned int i = 0; i < img_Height; i++) {
-		delete[] matrix[i];
-	}
+
 	delete[] matrix;
 }
 
-// pixel setter
+//pixel setter
 void ImageMatrix::set_pixel(Pixel<BYTE> value, unsigned int i, unsigned int j) {
-	matrix[i][j] = value;
+	(*this)[i][j] = value;
 }
 
 // pixel setter (separately by channels)
 void ImageMatrix::set_pixel(BYTE canal_R, BYTE canal_G, BYTE canal_B, unsigned int i, unsigned int j) {
-	matrix[i][j].canal_R = canal_R;
-	matrix[i][j].canal_G = canal_G;
-	matrix[i][j].canal_B = canal_B;
+	(*this)[i][j].canal_R = canal_R;
+	(*this)[i][j].canal_G = canal_G;
+	(*this)[i][j].canal_B = canal_B;
 }
 
 // pixel getter
 Pixel<BYTE> ImageMatrix::get_pixel(unsigned int i, unsigned int j) {
-	return matrix[i][j];
+	return (*this)[i][j];
 }
 
 // matrix row getter
 void ImageMatrix::get_row_matrix(Pixel<BYTE>* matr, unsigned int i) {
 	for (unsigned int j = 0; j < img_Width; j++) {
-		matr[j] = matrix[i][j];
+		matr[j] = (*this)[i][j];
 	}
 }
 
@@ -51,7 +45,7 @@ void ImageMatrix::get_row_matrix(Pixel<BYTE>* matr, unsigned int i) {
 // (with a slice starting from s_1 character of the string s_2 character of the string)
 void ImageMatrix::get_row_matrix(Pixel<BYTE>* matr, unsigned int i, unsigned int s_1, unsigned int s_2) {
 	for (unsigned int j = 0; j < s_2; j++) {
-		matr[j] = matrix[i][s_1 + j];
+		matr[j] = (*this)[i][s_1 + j];
 	}
   }
 
@@ -69,7 +63,7 @@ unsigned int ImageMatrix::get_width() {
 void ImageMatrix::zeroing() {
 	for (unsigned int i = 0; i < img_Height; i++) {
 		for (unsigned int j = 0; j < img_Width; j++) {
-			matrix[i][j].zeroing();
+			(*this)[i][j].zeroing();
 		}
 	}
 }
@@ -78,7 +72,7 @@ void ImageMatrix::zeroing() {
 void ImageMatrix::recording(ImageMatrix* Bitmap, unsigned int y, unsigned int x) {
 	for (unsigned int i = 0; i < Bitmap->get_height(); i++) {
 		for (unsigned int j = 0; j < Bitmap->get_width(); j++) {
-			matrix[i + y][j + x] = Bitmap->matrix[i][j];
+			(*this)[i + y][j + x] = (*Bitmap)[i][j];
 		}
 	}
 }
@@ -88,7 +82,7 @@ void ImageMatrix::recording(ImageMatrix* Bitmap, unsigned int y, unsigned int x)
 void ImageMatrix::cut_out(ImageMatrix* Bitmap, unsigned int y, unsigned int x) {
 	for (unsigned int i = 0; i < img_Height; i++) {
 		for (unsigned int j = 0; j < img_Width; j++) {
-			matrix[i][j] = (*Bitmap).matrix[i + y][j + x];
+			(*this)[i][j] = (*Bitmap)[i + y][j + x];
 		}
 	}
 }
@@ -99,7 +93,7 @@ Pixel<double> ImageMatrix::finding_avg() {
 
 	for (unsigned int i = 0; i < img_Height; i++) {
 		for (unsigned int j = 0; j < img_Width; j++) {
-			avg += matrix[i][j].to_double();
+			avg += (*this)[i][j].to_double();
 		}
 	}
 	avg /= img_Height;
@@ -115,7 +109,7 @@ Pixel<double> ImageMatrix::finding_sd() {
 
 	for (unsigned int i = 0; i < img_Height; i++) {
 		for (unsigned int j = 0; j < img_Width; j++) {
-			sd += ((matrix[i][j].to_double() - _avg) * (matrix[i][j].to_double() - _avg));
+			sd += (((*this)[i][j].to_double() - _avg) * ((*this)[i][j].to_double() - _avg));
 		}
 	}
 	sd /= img_Height;
@@ -132,7 +126,7 @@ Pixel<double> ImageMatrix::finding_avg(unsigned int x, unsigned int y, unsigned 
 
 	for (unsigned int i = y; i < y + h; i++) {
 		for (unsigned int j = x; j < x + w; j++) {
-			avg += matrix[i][j].to_double();
+			avg += (*this)[i][j].to_double();
 		}
 	}
 	avg /= h;
@@ -149,7 +143,7 @@ Pixel<double> ImageMatrix::finding_sd(unsigned int x, unsigned int y, unsigned i
 
 	for (unsigned int i = y; i < y + h; i++) {
 		for (unsigned int j = x; j < x + w; j++) {
-			sd += ((matrix[i][j].to_double() - _avg) * (matrix[i][j].to_double() - _avg));
+			sd += (((*this)[i][j].to_double() - _avg) * ((*this)[i][j].to_double() - _avg));
 		}
 	}
 	sd /= h;
@@ -170,7 +164,7 @@ Pixel<double> ImageMatrix::finding_cor(unsigned int y, unsigned int x, ImageMatr
 	Pixel<double> avg_1_2;
 	for (unsigned int i = 0; i < Height; i++) {
 		for (unsigned int j = 0; j < Width; j++) {
-			avg_1_2 += matrix[i + y][j + x].to_double() * matr.matrix[i][j].to_double();
+			avg_1_2 += (*this)[i + y][j + x].to_double() * matr[i][j].to_double();
 		}
 	}
 	avg_1_2 /= Height * Width;

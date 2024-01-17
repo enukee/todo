@@ -1,14 +1,15 @@
 #pragma once 
 
 #include <QObject>
+#include <atomic>
 
 class ProgressBarValue : public QObject {
 	Q_OBJECT
 
 private:
-	int value = 0;
+	std::atomic_int value = 0;
 
-	bool stop = 0;
+	std::atomic_bool stop = 0;
 
 public:
 	ProgressBarValue();

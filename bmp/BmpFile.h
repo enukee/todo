@@ -11,6 +11,9 @@ private:
 	void pixel_matrix_in_bmp(unsigned int i, BYTE* strok);
 	void bmp_into_pixel_matrix(unsigned int i, BYTE* strok);
 
+	// дополнение value до ближайшего большего числа кратного 4
+	int aling4(int value);
+
 public:
 
 	BmpFile(const char* way);

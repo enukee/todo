@@ -4,11 +4,31 @@
 //#include "ImageString.h"
 
 class ImageMatrix {
-protected:
-	unsigned int img_Height = 0;                    // Высота изображения
-	unsigned int img_Width = 0;                     // Ширина изображения
+private:
+	class Mass{
+	private:
+		ImageMatrix& matr;
+		unsigned int height;
 
-	Pixel<BYTE>** matrix;       //Матрица изображения 
+	public:
+
+		Mass(ImageMatrix& m, unsigned int w) : matr(m), height(w){}
+
+		Pixel<BYTE>& operator [] (unsigned int width) {
+			return matr.matrix[height * matr.img_Width + width];
+		}
+	};
+
+protected:
+	//Матрица изображения 
+	Pixel<BYTE>* matrix;       
+
+	unsigned int img_Height = 0; // Высота изображения
+	unsigned int img_Width = 0; // Ширина изображения
+
+	Mass& operator [] (unsigned int h){
+		return Mass(*this, h);
+	}
 
 	ImageMatrix();
 
@@ -17,10 +37,13 @@ public:
 
 	~ImageMatrix();
 
+	// сеттер пикселя
 	void set_pixel(Pixel<BYTE> value, unsigned int i, unsigned int j);
 	void set_pixel(BYTE canal_R, BYTE canal_G, BYTE canal_B, unsigned int i, unsigned int j);
 
+	// геттер пикселя
 	Pixel<BYTE> get_pixel(unsigned int i, unsigned int j);
+
 	void get_row_matrix(Pixel<BYTE>* matr, unsigned int i);
 	void get_row_matrix(Pixel<BYTE>* matr, unsigned int i, unsigned int y, unsigned int x);
 
